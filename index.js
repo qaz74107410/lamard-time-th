@@ -4,6 +4,7 @@ const logger = require('pino')({
 });
 const moment = require('moment')
 const FormData = require('form-data');
+const bearerToken = require('express-bearer-token');
 const { default: axios } = require('axios');
 
 require('moment/locale/th.js');
@@ -32,10 +33,9 @@ async function main() {
 
     const formData = scraper.generateFormData(now, filename)
     sendNotify(formData).then(res => {
-      console.log(res);
-      logger.child().info(`send notify with status ${res.status}`)
+      logger.child({ data: res.data }).info(`send notify completed`)
     }, err => {
-      logger.error(`send notify with errror ${err}`)
+      logger.error(`send notify completed with errror ${err}`)
     })
 
   } catch (error) {
@@ -63,4 +63,29 @@ function sendNotify(formData) {
   })
 }
 
-main()
+// create an express app
+const express = require("express")
+const app = express()
+
+app.use(bearerToken());
+
+// define the first route
+app.get("/", function (req, res) {
+  res.send("<h1>Hello World!</h1>")
+})
+
+app.get("/lamard-now", function(req, res) {
+
+  logger.debug(`req.token: ${req.token}, process.env.SECRET: ${process.env.APP_SECRET}`)
+
+  if (req.token !== (process.env.APP_SECRET || "")) { return res.sendStatus(403) }
+
+  main();
+  
+  return res.sendStatus(200)
+})
+
+// start the server listening for requests
+app.listen(process.env.PORT || 3000, function() { 
+  logger.info(`server is running on ${this.address().port}`)
+})

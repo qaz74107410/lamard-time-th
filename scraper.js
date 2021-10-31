@@ -15,14 +15,20 @@ const TIME_TABLE_SECTECTOR = "body > table > tbody > tr:nth-child(3) > td:nth-ch
  */
 async function getTimeTableElement(browser, lamard_url) {
   const page = await browser.newPage();
-  await page.goto(lamard_url, { waitUntil: 'domcontentloaded' });
-  
-
-  // screen short only time-table element
-  await page.waitForSelector(TIME_TABLE_SECTECTOR);
-  page.Wait
-  const table = await page.$(TIME_TABLE_SECTECTOR);
-  return table
+  let attempts = 0;
+  while (attempts < 10) {
+    try {
+      await page.goto(lamard_url, { waitUntil: 'domcontentloaded' });
+    
+      // screen short only time-table element
+      await page.waitForSelector(TIME_TABLE_SECTECTOR);
+      const table = await page.$(TIME_TABLE_SECTECTOR);
+      return table
+    } catch (error) {
+      attempts++; 
+    }
+  }
+  return null;
 }
 /**
  * get ready date page with timetable
