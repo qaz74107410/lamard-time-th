@@ -3,13 +3,24 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "test": "jest",
+    "start": "node index.js",
+    "dev": "cross-env NODE_ENV=development node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^2.1.1"
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0",
+    "moment": "^2.29.1",
+    "pino": "^7.0.5",
+    "pino-pretty": "^7.1.0",
+    "puppeteer": "^2.1.1",
+    "puppeteer-core": "^10.4.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.1"
   }
 }
