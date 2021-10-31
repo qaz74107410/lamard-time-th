@@ -3,7 +3,13 @@ const puppeteer = require("puppeteer");
 async function main() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox"]
+    defaultViewport: null,
+    args: [
+      "--incognito",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote"
+    ]
   });
   const tab = await browser.newPage();
   const text = await (await tab.goto("http://example.com/")).text();
