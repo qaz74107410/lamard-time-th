@@ -23,8 +23,15 @@ async function getTimeTableElement(browser, lamard_url) {
       // screen short only time-table element
       await page.waitForSelector(TIME_TABLE_SECTECTOR);
       const table = await page.$(TIME_TABLE_SECTECTOR);
+      if (table) {
+        await page.evaluate((selector) => {
+          const elem = document.querySelector(selector)
+          elem.style.fontFamily = "Tahoma, Lucida Grande, Loma, sans-serif"
+        }, TIME_TABLE_SECTECTOR)
+      }
       return table
     } catch (error) {
+      console.log(error);
       attempts++; 
     }
   }

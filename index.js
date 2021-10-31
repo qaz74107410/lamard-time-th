@@ -26,17 +26,19 @@ async function main() {
     const table = await scraper.getTimeTableElement(browser, url)
     if (table) {
       await table.screenshot({path: filename});
-      console.info(`scraping done "${filename}"`);
+      logger.info(`scraping done "${filename}"`);
+      
+      const formData = scraper.generateFormData(now, filename)
+      // sendNotify(formData).then(res => {
+      //   logger.child({ data: res.data }).info(`send notify completed`)
+      // }, err => {
+      //   logger.error(`send notify completed with errror ${err}`)
+      // })
+
     } else {
-      console.warn(`scraping failed`)
+      logger.warn(`scraping failed`)
     }
 
-    const formData = scraper.generateFormData(now, filename)
-    sendNotify(formData).then(res => {
-      logger.child({ data: res.data }).info(`send notify completed`)
-    }, err => {
-      logger.error(`send notify completed with errror ${err}`)
-    })
 
   } catch (error) {
     logger.error(error)
