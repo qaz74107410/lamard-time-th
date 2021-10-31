@@ -29,11 +29,11 @@ async function main() {
       logger.info(`scraping done "${filename}"`);
       
       const formData = scraper.generateFormData(now, filename)
-      // sendNotify(formData).then(res => {
-      //   logger.child({ data: res.data }).info(`send notify completed`)
-      // }, err => {
-      //   logger.error(`send notify completed with errror ${err}`)
-      // })
+      sendNotify(formData).then(res => {
+        logger.child({ data: res.data }).info(`send notify completed`)
+      }, err => {
+        logger.error(`send notify completed with errror ${err}`)
+      })
 
     } else {
       logger.warn(`scraping failed`)
