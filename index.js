@@ -14,26 +14,33 @@ if (process.env.NODE_ENV === 'development') {
   logger.level = 'trace';
 }
 
-async function main() {
+/**
+ * @param  {moment.Moment} date
+ * @param  {{notify=false}} options
+ */
+async function lamard(date, options = { notify: false }) {
   logger.debug("main start")
   const browser = await scraper.getDefaultBrowser()
   try {
-    const now = moment().local('th')
-    const url = scraper.getSerializeLamardUrl(now)
+    // const date = moment().local('th')
+    const url = scraper.getSerializeLamardUrl(date)
     const filename = "time-table.png"
     
-    logger.info(`date ${now.format('YYYY-MM-DD')}, scraping ${url}`)
+    logger.info(`date ${date.format('YYYY-MM-DD')}, scraping ${url}`)
     const table = await scraper.getTimeTableElement(browser, url)
     if (table) {
       await table.screenshot({path: filename});
       logger.info(`scraping done "${filename}"`);
       
-      const formData = scraper.generateFormData(now, filename)
-      sendNotify(formData).then(res => {
-        logger.child({ data: res.data }).info(`send notify completed`)
-      }, err => {
-        logger.error(`send notify completed with errror ${err}`)
-      })
+      const formData = scraper.generateFormData(date, filename)
+
+      if (options.notify) {
+        sendNotify(formData).then(res => {
+          logger.child({ data: res.data }).info(`send notify completed`)
+        }, err => {
+          logger.error(`send notify completed with errror ${err}`)
+        })
+      }
 
     } else {
       logger.warn(`scraping failed`)
@@ -70,6 +77,7 @@ const express = require("express")
 const app = express()
 
 app.use(bearerToken());
+app.use(express.json());
 
 // define the first route
 app.get("/", function (req, res) {
@@ -82,7 +90,18 @@ app.get("/lamard-now", function(req, res) {
 
   if (req.token !== (process.env.APP_SECRET || "")) { return res.sendStatus(403) }
 
-  main();
+  const { YYYYMMDD, notify } = req.body
+  logger.debug(`req.body: ${req.body}`)
+  let date
+  if (YYYYMMDD) {
+    date = moment(YYYYMMDD, "YYYYMMDD")
+  } else {
+    date = moment()
+  }
+
+  logger.debug(`date: ${date}`)
+
+  lamard(date, { notify: notify || false });
   
   return res.sendStatus(200)
 })
